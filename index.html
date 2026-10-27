@@ -1,0 +1,501 @@
+<!DOCTYPE html>
+<html lang="zh-CN" data-page-node-id="BQXoNRRdBSdeE8WTVQirEj"><head data-page-node-id="S4Epd4CxFK6pDSruAzzoEV">
+<meta charset="UTF-8" data-page-node-id="44CILZG6yLKhEVVo9Z9DiG">
+<meta name="viewport" content="width=device-width, initial-scale=1.0" data-page-node-id="U1hPSdkzZ3suptq8TkiGOO">
+<title data-page-node-id="quSF9MG2OF4d6rEOh6HrIq">guancli 打单方法论 · 经验分享</title>
+<style data-page-node-id="QdNwhg7vTDvi7WAGlwErkq">
+  :root{
+    --bg:#f4f7fb; --panel:#ffffff; --panel-soft:#f8fafd;
+    --border:#e3eaf2; --border-soft:#edf2f8;
+    --text:#1c2a3a; --muted:#5c6d80; --faint:#8a99ab;
+    --blue:#1f6fd6; --teal:#0fa08f; --green:#0f9d6a; --amber:#d98a12; --red:#d9534f; --violet:#7a5fd0;
+    --grad:linear-gradient(120deg,#1f6fd6 0%,#0fa08f 100%);
+    --chip-bg:#eef4fb;
+    --shadow:0 1px 3px rgba(23,43,77,.05),0 8px 24px rgba(23,43,77,.06);
+    --mono:"JetBrains Mono","SF Mono",Menlo,Consolas,monospace;
+    --sans:"PingFang SC","Microsoft YaHei","Noto Sans SC","Hiragino Sans GB",-apple-system,BlinkMacSystemFont,"Segoe UI",sans-serif;
+  }
+  *{box-sizing:border-box;margin:0;padding:0;}
+  html{scroll-behavior:smooth;scroll-padding-top:76px;}
+  body{background:var(--bg);color:var(--text);font-family:var(--sans);line-height:1.75;-webkit-font-smoothing:antialiased;overflow-x:hidden;}
+  a{color:inherit;text-decoration:none;}
+  .wrap{max-width:960px;margin:0 auto;padding:0 24px;}
+
+  /* ===== nav ===== */
+  .nav{position:fixed;top:0;left:0;right:0;z-index:50;background:rgba(255,255,255,.92);backdrop-filter:blur(10px);border-bottom:1px solid var(--border);}
+  .nav-in{max-width:960px;margin:0 auto;padding:0 24px;height:56px;display:flex;align-items:center;gap:16px;}
+  .logo{font-family:var(--mono);font-weight:700;font-size:15px;background:var(--grad);-webkit-background-clip:text;background-clip:text;color:transparent;white-space:nowrap;}
+  .nav-links{display:flex;gap:2px;overflow-x:auto;scrollbar-width:none;margin-left:auto;}
+  .nav-links::-webkit-scrollbar{display:none;}
+  .nav-links a{font-size:13px;color:var(--muted);padding:5px 10px;border-radius:6px;white-space:nowrap;transition:.2s;}
+  .nav-links a:hover{color:var(--blue);background:var(--chip-bg);}
+  .nav-links a.on{color:var(--blue);background:var(--chip-bg);font-weight:600;}
+  .progress{position:absolute;bottom:-1px;left:0;height:2px;background:var(--grad);width:0;transition:width .1s linear;}
+
+  /* ===== hero ===== */
+  .hero{padding:132px 0 64px;}
+  .kicker{font-family:var(--mono);font-size:12px;letter-spacing:.18em;color:var(--blue);text-transform:uppercase;font-weight:600;}
+  h1{font-size:clamp(28px,4.6vw,42px);line-height:1.3;font-weight:800;margin:14px 0 18px;letter-spacing:-.01em;}
+  h1 em{font-style:normal;background:var(--grad);-webkit-background-clip:text;background-clip:text;color:transparent;}
+  .hero p.lead{font-size:16px;color:var(--muted);max-width:640px;}
+  .hero-cards{display:grid;grid-template-columns:repeat(3,1fr);gap:14px;margin-top:38px;}
+  .hero-card{background:var(--panel);border:1px solid var(--border);border-top:3px solid var(--blue);border-radius:10px;padding:18px 20px;box-shadow:var(--shadow);}
+  .hero-card:nth-child(2){border-top-color:var(--teal);}
+  .hero-card:nth-child(3){border-top-color:var(--green);}
+  .hero-card .t{font-family:var(--mono);font-size:11px;letter-spacing:.14em;color:var(--faint);text-transform:uppercase;}
+  .hero-card .h{font-size:16px;font-weight:700;margin:6px 0 4px;}
+  .hero-card .d{font-size:13px;color:var(--muted);}
+  .scroll-hint{margin-top:36px;font-family:var(--mono);font-size:12px;color:var(--faint);}
+
+  /* ===== sections ===== */
+  section{padding:64px 0;}
+  section.alt{background:var(--panel);border-top:1px solid var(--border-soft);border-bottom:1px solid var(--border-soft);}
+  .sec-head{display:flex;align-items:baseline;gap:14px;margin-bottom:10px;}
+  .sec-no{font-family:var(--mono);font-size:13px;font-weight:700;color:#fff;background:var(--grad);border-radius:6px;padding:2px 9px;}
+  h2{font-size:clamp(20px,3vw,26px);font-weight:800;}
+  .sec-sub{color:var(--muted);font-size:14.5px;max-width:720px;margin-bottom:30px;}
+
+  /* stats */
+  .stats{display:grid;grid-template-columns:repeat(3,1fr);gap:16px;}
+  .stat{background:var(--panel);border:1px solid var(--border);border-radius:12px;padding:26px 24px;box-shadow:var(--shadow);}
+  .stat .v{font-family:var(--mono);font-size:clamp(30px,4.5vw,40px);font-weight:800;background:var(--grad);-webkit-background-clip:text;background-clip:text;color:transparent;line-height:1.2;}
+  .stat .v small{font-size:.5em;font-weight:700;}
+  .stat .k{font-size:15px;font-weight:700;margin-top:8px;}
+  .stat .d{font-size:13px;color:var(--muted);margin-top:2px;}
+  .stats-note{margin-top:14px;font-size:12.5px;color:var(--faint);}
+  .stats-note b{color:var(--green);font-weight:600;}
+
+  /* toc */
+  .toc{display:grid;grid-template-columns:repeat(3,1fr);gap:10px;}
+  .toc a{display:flex;gap:12px;align-items:center;background:var(--panel);border:1px solid var(--border);border-radius:10px;padding:13px 16px;transition:.2s;}
+  .toc a:hover{border-color:var(--blue);transform:translateY(-1px);box-shadow:var(--shadow);}
+  .toc .n{font-family:var(--mono);font-size:12px;font-weight:700;color:var(--blue);}
+  .toc .t{font-size:14px;font-weight:600;}
+  .toc .s{display:block;font-size:12px;color:var(--faint);font-weight:400;}
+
+  /* product table */
+  .prod{display:flex;flex-direction:column;gap:10px;}
+  .prod-row{display:grid;grid-template-columns:1fr 200px 110px;gap:16px;align-items:center;background:var(--panel);border:1px solid var(--border);border-radius:10px;padding:14px 18px;}
+  .prod-row.hit{border-color:rgba(15,157,106,.45);background:linear-gradient(90deg,rgba(15,157,106,.06),transparent 55%);}
+  .prod-name{font-weight:700;font-size:14.5px;}
+  .prod-pos{font-size:13px;color:var(--muted);}
+  .badge{font-size:12px;font-weight:600;padding:3px 10px;border-radius:999px;justify-self:end;white-space:nowrap;}
+  .badge.hit{background:rgba(15,157,106,.12);color:var(--green);}
+  .badge.meh{background:#f1f3f6;color:var(--faint);}
+  .badge.warn{background:rgba(217,138,18,.12);color:var(--amber);}
+  .prod-note{grid-column:1/-1;font-size:13px;color:var(--muted);border-top:1px dashed var(--border);padding-top:8px;}
+  .verdict{background:var(--panel);border:1px solid rgba(31,111,214,.3);border-left:4px solid var(--blue);border-radius:10px;padding:16px 20px;font-size:14px;margin-top:20px;}
+  .verdict b{color:var(--blue);}
+
+  /* topics */
+  .topics{display:grid;grid-template-columns:1fr 1fr;gap:10px;}
+  .topic{display:flex;gap:12px;background:var(--panel);border:1px solid var(--border);border-radius:10px;padding:14px 16px;}
+  .topic .qn{font-family:var(--mono);font-size:12px;font-weight:700;color:var(--teal);padding-top:2px;}
+  .topic p{font-size:13.5px;}
+
+  /* profiles */
+  .grid2{display:grid;grid-template-columns:1fr 1fr;gap:14px;}
+  .card{background:var(--panel);border:1px solid var(--border);border-radius:12px;padding:20px 22px;box-shadow:var(--shadow);}
+  .card .ico{font-size:20px;}
+  .card .no{font-family:var(--mono);font-size:11.5px;font-weight:700;color:var(--teal);margin-left:8px;}
+  .card h3{font-size:15.5px;font-weight:700;margin:8px 0 4px;}
+  .card p{font-size:13.5px;color:var(--muted);}
+
+  /* ladder */
+  .ladder{display:grid;grid-template-columns:repeat(4,1fr);gap:12px;}
+  .rung{border-radius:12px;padding:18px 18px;border:1px solid var(--border);}
+  .rung .lv{font-family:var(--mono);font-size:11px;font-weight:700;letter-spacing:.1em;}
+  .rung h3{font-size:15px;font-weight:700;margin:6px 0;}
+  .rung p{font-size:12.5px;color:var(--muted);}
+  .rung .tag{display:inline-block;font-size:11.5px;font-weight:600;border-radius:999px;padding:2px 9px;margin-bottom:8px;}
+  .r1{background:#fafbfc;} .r1 .lv{color:var(--faint);} .r1 .tag{background:#eef1f5;color:var(--faint);}
+  .r2{background:#f2f9fb;} .r2 .lv{color:#3a8fa5;} .r2 .tag{background:rgba(31,111,214,.1);color:var(--blue);}
+  .r3{background:#eef7f4;} .r3 .lv{color:var(--teal);} .r3 .tag{background:rgba(15,160,143,.12);color:var(--teal);}
+  .r4{background:#edf8f2;} .r4 .lv{color:var(--green);} .r4 .tag{background:rgba(15,157,106,.14);color:var(--green);}
+  .rung .arrowline{font-size:11px;color:var(--faint);font-family:var(--mono);margin-top:10px;}
+
+  /* timeline */
+  .tl{position:relative;margin-left:6px;padding-left:28px;display:flex;flex-direction:column;gap:26px;}
+  .tl::before{content:"";position:absolute;left:5px;top:8px;bottom:8px;width:2px;background:linear-gradient(180deg,var(--blue),var(--teal));border-radius:2px;}
+  .tl-item{position:relative;}
+  .tl-item::before{content:"";position:absolute;left:-28px;top:7px;width:12px;height:12px;border-radius:50%;background:#fff;border:3px solid var(--blue);}
+  .tl-item:nth-child(2)::before{border-color:var(--teal);}
+  .tl-item:nth-child(3)::before{border-color:var(--green);}
+  .tl-item .step{font-family:var(--mono);font-size:11.5px;font-weight:700;color:var(--blue);letter-spacing:.08em;}
+  .tl-item h3{font-size:15.5px;font-weight:700;margin:4px 0;}
+  .tl-item p{font-size:14px;color:var(--muted);}
+  .tl-item p b{color:var(--text);font-weight:600;}
+  .anon{margin-top:8px;font-size:12.5px;color:var(--amber);background:rgba(217,138,18,.08);border-radius:8px;padding:8px 12px;display:inline-block;}
+
+  /* qa blocks */
+  .qa{background:var(--panel);border:1px solid var(--border);border-radius:12px;padding:22px 24px;box-shadow:var(--shadow);margin-bottom:16px;}
+  .qa-q{display:flex;align-items:center;gap:10px;font-size:16px;font-weight:700;margin-bottom:12px;}
+  .qa-q .ico{font-size:18px;}
+  .qa ol{list-style:none;display:flex;flex-direction:column;gap:10px;}
+  .qa li{font-size:13.5px;color:var(--muted);padding-left:26px;position:relative;}
+  .qa li .idx{position:absolute;left:0;top:1px;font-family:var(--mono);font-size:11.5px;font-weight:700;color:var(--teal);}
+  .qa li b{color:var(--text);font-weight:600;}
+  .qa .row-2col{display:grid;grid-template-columns:1fr 1fr;gap:20px;align-items:start;}
+  .fig{margin:0;}
+  .fig img{width:100%;border:1px solid var(--border);border-radius:10px;cursor:zoom-in;display:block;box-shadow:var(--shadow);}
+  .fig figcaption{font-size:12px;color:var(--faint);text-align:center;margin-top:8px;font-family:var(--mono);}
+  .hl-blue{color:var(--blue);font-weight:600;}
+  .hl-green{color:var(--green);font-weight:600;}
+
+  /* supplements */
+  .grid4{display:grid;grid-template-columns:1fr 1fr;gap:14px;}
+  .sup .ico{font-size:20px;}
+  .sup h3{font-size:15px;font-weight:700;margin:8px 0 4px;}
+  .sup p{font-size:13.5px;color:var(--muted);}
+
+  /* methodology strip */
+  .motto{background:linear-gradient(120deg,rgba(31,111,214,.08),rgba(15,160,143,.1));border:1px solid rgba(31,111,214,.25);border-radius:14px;padding:30px 34px;text-align:center;}
+  .motto .t{font-family:var(--mono);font-size:12px;letter-spacing:.2em;color:var(--blue);font-weight:700;}
+  .motto p{font-size:15.5px;margin-top:10px;font-weight:600;max-width:760px;margin-left:auto;margin-right:auto;}
+  .motto p em{font-style:normal;color:var(--blue);}
+  .motto .tail{font-size:13px;color:var(--muted);font-weight:400;margin-top:6px;}
+
+  footer{padding:34px 0 44px;text-align:center;font-size:12.5px;color:var(--faint);border-top:1px solid var(--border-soft);background:var(--panel);}
+
+  /* lightbox */
+  .lb{position:fixed;inset:0;z-index:100;background:rgba(15,25,40,.75);display:none;align-items:center;justify-content:center;padding:32px;cursor:zoom-out;}
+  .lb.show{display:flex;}
+  .lb img{max-width:94vw;max-height:92vh;border-radius:10px;box-shadow:0 24px 60px rgba(0,0,0,.4);}
+
+  /* reveal */
+  .rv{opacity:0;transform:translateY(14px);transition:opacity .5s ease,transform .5s ease;}
+  .rv.in{opacity:1;transform:none;}
+
+  @media (max-width:760px){
+    .hero{padding-top:96px;}
+    .hero-cards,.stats,.topics,.grid2,.grid4{grid-template-columns:1fr;}
+    .toc{grid-template-columns:1fr;}
+    .ladder{grid-template-columns:1fr 1fr;}
+    .prod-row{grid-template-columns:1fr;gap:6px;}
+    .badge{justify-self:start;}
+    .qa .row-2col{grid-template-columns:1fr;}
+    .nav-links a{padding:5px 7px;}
+  }
+</style>
+<style id="__dm_no_drag_style__">* { -webkit-user-drag: none !important; }</style><style id="__dm_bindable_badge_style__">[data-sp-bindable="database"]{outline:1px dashed #0088ff;outline-offset:2px;border-radius:4px;}[data-sp-bindable="database"] *{pointer-events:none !important;transition:none !important;animation:none !important;}[data-sp-bindable="database"]{transition:none !important;animation:none !important;}</style></head>
+<body data-page-node-id="LrQGVGXwyQtDmBjrKk5PCc" style="">
+
+<nav class="nav" data-page-node-id="0DA1Ibd585m1V1p41YgHEG">
+  <div class="nav-in" data-page-node-id="hpWUxbaYKYgwljbD0CQXKu">
+    <a class="logo" href="#top" data-page-node-id="E7gIGjw4L55zQvQdbVc8Br">guancli · 打单方法论</a>
+    <div class="nav-links" data-page-node-id="whohwqsM09ESX52Hf46l5A">
+      <a href="#s1" class="" data-page-node-id="a7BScRerW0Qok2PLCE6ZNB">结果</a>
+      <a href="#s2" class="" data-page-node-id="0bJBdEHkPSJ0vgpRy49lXR">为什么cli</a>
+      <a href="#s3" data-page-node-id="5sZdvLSjmROmMnuVuYJ2WC" class="">客户画像</a>
+      <a href="#s4" data-page-node-id="zD5FmQEU6iBnGIED6FuTtq" class="">四类客户</a>
+      <a href="#s5" data-page-node-id="OYa9i2gC7AgGLt5dFiC2qK" class="">打单案例</a>
+      <a href="#s6" data-page-node-id="95H0OLGr4AdpzNVgWnEsTH" class="">遇到的问题</a>
+      <a href="#s7" data-page-node-id="cfH9hCynapW5QEZZNpz8it" class="on">补充</a>
+    </div>
+  </div>
+  <div class="progress" id="progress" style="width: 100.009%;" data-page-node-id="3djV9D0WUyWNpbKwJKiQAT"></div>
+</nav>
+
+<header class="hero" id="top" data-page-node-id="FzCCUHQ9O7syLaDdDGBiwW">
+  <div class="wrap" data-page-node-id="C7SyloEvlJJ28xyZdz3sD0">
+    <div class="kicker rv in" data-page-node-id="jF1EIwm8klEmk8GLUGh9bE">GUANCLI 打单方法论 · 一线 CSM 经验分享</div>
+    <h1 class="rv in" data-page-node-id="2nTldhGyrg3ypmFF9uWJFJ">用 <em data-page-node-id="3pRmkTMdFtPAkWWkhF8WaS">guancli</em> 这把钥匙，<br data-page-node-id="hH4DMu9CKz9VGqueDKZQs7">打开客户 AI 应用的第一道门</h1>
+    <p class="lead rv in" data-page-node-id="9QiwGTQFDRb3VVYx1RPETD">一份来自一线的打单方法论：为什么是 cli 而不是其他 AI 产品、什么样的客户最该打、四种客户怎么分层培育，以及实战中避不开的那些问题。</p>
+    <div class="hero-cards rv in" data-page-node-id="sZtB5osFObmTfQgfXMkTwP">
+      <div class="hero-card" data-page-node-id="Czgf8bjgRiChU2q0cVL821">
+        <div class="t" data-page-node-id="lDpU1ln15IucydbdOT8oL7">定位 · POSITIONING</div>
+        <div class="h" data-page-node-id="e82lBStLC2CJT7ZQgHgZcu">cli 是 AI 落地的第一入口</div>
+        <div class="d" data-page-node-id="bCSTrwbs4BQ9F1lyNvJ86J">不是又一个取数 API，而是一整套 Agent 交互解决方案，最顺手地切进客户的 AI 应用。</div>
+      </div>
+      <div class="hero-card" data-page-node-id="uAew0wG3HXfVpylfDdxBw9">
+        <div class="t" data-page-node-id="CQPEgSIKwCHwRHEaYh0lXG">画像 · WHO</div>
+        <div class="h" data-page-node-id="fYBn6xcnK6nWkqEkQKPawe">四类客户精准识别</div>
+        <div class="d" data-page-node-id="JndzOY0Hk3b2AJUd2zhnqt">从「想用 AI 却不会」到「已经手搓 HTML」，按感知度与使用深度分层培育。</div>
+      </div>
+      <div class="hero-card" data-page-node-id="kElddAZJ6WACgxsYLHclOg">
+        <div class="t" data-page-node-id="9ZdBoxEN5Qzh62tr68iAj1">打法 · PLAYBOOK</div>
+        <div class="h" data-page-node-id="Q8E6gRTJgfEaK2JgVuBr7r">探意实战，从 0 到成交</div>
+        <div class="d" data-page-node-id="sHqodyhtz5jVXYr59E03Z3">一个真实案例串起破冰、铺垫收费与避坑，验证这条打法确实走得通。</div>
+      </div>
+    </div>
+    <div class="scroll-hint rv in" data-page-node-id="vLisrrktpLGhWiPBsZ4QjI">向下滚动，展开完整方法论 ↓</div>
+  </div>
+</header>
+
+<section class="alt" id="s1" data-page-node-id="PxmBwwd5VKeG8YOoFRX0ho">
+  <div class="wrap" data-page-node-id="FCGqmItF0qGsdOzmbPFu2Z">
+    <div class="sec-head rv in" data-page-node-id="4NbaH0PAkF33bXBf1rC5mq"><span class="sec-no" data-page-node-id="tpHjlM7XWaCpFgjnaHnK4y">01</span><h2 data-page-node-id="wCTIHGavp31GL7nAj3atew">我取得了什么结果</h2></div>
+    <p class="sec-sub rv in" data-page-node-id="nDX04ZijlOQA6ez9DdB4eM">不是炫数字，而是验证了一条打法确实走得通：以 cli 为单点突破口，增购线索在持续放大。</p>
+    <div class="stats rv in" data-page-node-id="L5CuUf0AyNNKDDizPB3dCh">
+      <div class="stat" data-page-node-id="OAg6pDt0e7JnIMkqM13SWK">
+        <div class="v" data-page-node-id="WI1DG96wuXxrvrpVYqKe45">5<small data-page-node-id="0QQNccfIzzrRZ9y1AvRtUc"> 家</small></div>
+        <div class="k" data-page-node-id="DXvgAq5Hr89RM0JdGQVo5Y">已成交数量</div>
+        <div class="d" data-page-node-id="ua1LXEw7GnyFEQmqq55ARC">cli 相关增购已经落袋的客户数</div>
+      </div>
+      <div class="stat" data-page-node-id="NH7aFR1YkBUF3WAKHAMjwp">
+        <div class="v" data-page-node-id="ECRoy0LvWr0f9DqSzvDBIw">10<small data-page-node-id="9OWDkUh7wiM1sNT5ADAToB">+</small></div>
+        <div class="k" data-page-node-id="Dw3InMLzX1NahGcWxKBwTa">商机在途</div>
+        <div class="d" data-page-node-id="lYafgBT7tar51K4TcFWjjV">正在孵化 / 跟进中的潜在订单</div>
+      </div>
+      <div class="stat" data-page-node-id="9D86nWoGfL4vOYrku50mNG">
+        <div class="v" data-page-node-id="qs95MsybVQA90QvAeZTseX">50<small data-page-node-id="Rj60CmFKMqS95jV1I7ttGg">%+</small></div>
+        <div class="k" data-page-node-id="dADCGTjbBta0zpqvuocVrQ">cli 商机 / 客户比</div>
+        <div class="d" data-page-node-id="misWCMGydJA1KCMwO6bzEg">名下客户中已挖出 cli 机会的比例</div>
+      </div>
+    </div>
+    <p class="stats-note rv in" data-page-node-id="5eCDE3tUx9kyX78MMt7fWb"><b data-page-node-id="9dikmBd955qFdA3G2brZYA">↑ 仍有上升空间</b>：渗透率未到天花板，可继续摸排。本阶段特别感谢产品侧同学的大力支持：matt、颖博、贺峰、赵阳 等。</p>
+  </div>
+</section>
+
+<section id="s2" data-page-node-id="HKgaOyKtjFhfRJBjaJRHPV">
+  <div class="wrap" data-page-node-id="X1hR0tueJ4tproqgDDcod8">
+    <div class="sec-head rv in" data-page-node-id="7zRO5KdUkvlVAQkAH5oP5V"><span class="sec-no" data-page-node-id="cbEGdC0Gwcae6sGUbIlxPu">02</span><h2 data-page-node-id="pZBvki4kDWP2zFCZ60l9R5">为什么是 cli，而不是其他</h2></div>
+    <p class="sec-sub rv in" data-page-node-id="IMBQQlN7CfVmpAOiaFueMy">今年公司鼓励 AI 产品推荐与打单，AI 产品矩阵分为五类。站在客户成功视角，我做了一次个人客观取舍。</p>
+    <div class="prod rv in" data-page-node-id="jSWqlS1uLorwVoGExVWHRy">
+      <div class="prod-row" data-page-node-id="5gHReKHGslEOou4sg19GwA">
+        <div data-page-node-id="J6kOWjSupSWF4TJWvkA0Yw"><div class="prod-name" data-page-node-id="PilceIat3L7XatEKbkjoQd">① 仪表板洞察 + 洞察 Agent</div><div class="prod-pos" data-page-node-id="sVqaDTeHDP7ph0CUUTQ8CN">仪表板报告解读</div></div>
+        <div class="prod-pos" data-page-node-id="yrVrYuSmN2biX25Kpx6cBy" style="">本质是把数据喂给大模型+提示词固化分析思路，小客户付费转化难，中大客户可以尝试但25年已推过一波，短期再推转化难。​</div>
+        <span class="badge meh" data-page-node-id="ec9vfD4DBUtiq9MMVzWWeW">再成交难</span>
+        <div class="prod-note" data-page-node-id="IyHhvkMTKxSR2Xopre4tlj">长尾小客户价格门槛过高。</div>
+      </div>
+      <div class="prod-row" data-page-node-id="fzUeZVNt3K4aUaeUASR4rE">
+        <div data-page-node-id="zKDNzBTNYbok0BA2qgEl0u"><div class="prod-name" data-page-node-id="Q9wUkrA2fLzS0zrIFLt67U">② chatBI</div><div class="prod-pos" data-page-node-id="U3L5Sf2hU6WciLL4ripl6E">智能问数</div></div>
+        <div class="prod-pos" data-page-node-id="vWRDGeuaiZIqxZ58upGcI7" style="">本质还是NL2sql，无法解决百分百准确的问题，交付过程重时间久但效果很难好，且与①同源，多数客户25年已被推荐过。​​</div>
+        <span class="badge meh" data-page-node-id="82mQcfzJ97lyWJrJPojQdg">再成交难</span>
+        <div class="prod-note" data-page-node-id="qdUyEs33drTCWyvMRthVeH">再次成交机会相对小。</div>
+      </div>
+      <div class="prod-row hit" data-page-node-id="VseydcdCb5h1pypP7idiIl">
+        <div data-page-node-id="yfWNatOMLUBC8U8uF4Gx4r"><div class="prod-name" data-page-node-id="gyUBZgTKwbDMmVkKPXWCYW">③ guancli</div><div class="prod-pos" data-page-node-id="7Mj5x4O3qUAPUDELLrCEQd">Agent 交互入口</div></div>
+        <div class="prod-pos" data-page-node-id="KECghd6jozOsHDfLj6z9Jk" style="">AI 入口第一步，最顺手切进客户 AI 应用，因为现在AIAgent盛行。​</div>
+        <span class="badge hit" data-page-node-id="jDArQAwEIROjEDOFaCf7AS">突破口</span>
+      </div>
+      <div class="prod-row" data-page-node-id="wypx5U4MOQKDql1bfELXHf">
+        <div data-page-node-id="eGkeGhPyCMIPkVZHqZPCBK"><div class="prod-name" data-page-node-id="cG1Ul5vVBHqwEjcU8l0RDL">④ SuperApp</div><div class="prod-pos" data-page-node-id="qdUVsxBLiblPtGATOA57Lm">自定义网站搭建</div></div>
+        <div class="prod-pos" data-page-node-id="YYtIb1Y2mC22XUQ9Syl4l7" style="">只要能拿到数据（api或cli都可以），借助 WorkBuddy 等通用 Agent 搭站部署并不复杂。​</div>
+        <span class="badge meh" data-page-node-id="2e5dZBokQ1ydGDSxiMyaBn">优势不明显</span>
+      </div>
+      <div class="prod-row" data-page-node-id="FHZV6EMAHMvZ8FEGiKcV3Y">
+        <div data-page-node-id="TSrN9KSVpny98iQmhmZvl1"><div class="prod-name" data-page-node-id="DxE9dgRmsjtnUjsBboRlS6">⑤ DecideX</div><div class="prod-pos" data-page-node-id="pIAIfatoDp8ScooStWpc2t">数据治理 + 业务 Agent 搭建</div></div>
+        <div class="prod-pos" data-page-node-id="RTgEMv6qFHonDYOlLtpi80" style="">客户侧落地成本高，且产品单价比较高，运营成本也高，不适合作为第一刀切入。​</div>
+        <span class="badge warn" data-page-node-id="eO4XbGxfBP89gdHoUr7qUr">相对较重</span>
+      </div>
+    </div>
+    <div class="verdict rv in" data-page-node-id="cjg597GcS0aDNKIS1ZvpUv">
+      <b data-page-node-id="9SX2P8PiJYnEA6oGbQ5KJG">核心判断：cli 是 AI 入口的第一步。</b>
+      跟客户整体聊下来会发现——在 AI 盛行的当下，客户侧基本都在拥抱 AI，或深或浅（不管是国外的 Codex 还是国内的 WorkBuddy）。客户使用 Agent 的习惯在逐渐养成，绝大多数客户希望在同一入口处理相关工作。站在 BI 厂商角度，用 guancli 是最好切入客户 AI 应用的点。所以选择用 cli 做有限的单点破局，再在此基础上深入沟通、摸排其他机会。
+    </div>
+    <h3 class="rv in" style="font-size:16px;font-weight:700;margin:34px 0 14px;" data-page-node-id="3zaUJC8lBXZ5gsrjQObJAI">现场必聊的四个话题</h3>
+    <div class="topics rv in" data-page-node-id="UAgXaPdRyqGPXJJBBlqzjW">
+      <div class="topic" data-page-node-id="yUKawQhtQZOOmvc6gIadY8"><span class="qn" data-page-node-id="0TH24PXJPVDosElmlK0LI3">1.1</span><p data-page-node-id="3ozPao2AtwNu8UWhy9reC6">现在 AI 这么流行，你们公司在用什么 AI 工具了吗？</p></div>
+      <div class="topic" data-page-node-id="N1V3FV4QF5bCJU5QB6N4Zg"><span class="qn" data-page-node-id="5z9WBRfZCIz7Ptz9FHZTHT">1.2</span><p data-page-node-id="bS0JCXyyp0oKhrQYCDWTwB">你们平常用这些 AI 工具主要做什么呢？解决了什么问题？</p></div>
+      <div class="topic" data-page-node-id="CTShjtDkHsyCJxBFBaR88y"><span class="qn" data-page-node-id="yzoExBOIvR9ixLQjQvilJ0">1.3</span><p data-page-node-id="InwwcIz023fGsVcOQ1fBoe">在这样的情况下，你们跟 BI 工具是怎么搭配结合的呢？</p></div>
+      <div class="topic" data-page-node-id="Ohl3T1kDRr0TCcFAls7qDA"><span class="qn" data-page-node-id="q6FT2ut2KA9YehlgODX6o5">1.4</span><p data-page-node-id="HqFUUM74OyVTenCvnameVO">你觉得在 AI 发展的趋势下，对未来的工作模式有什么预期和期待吗？</p></div>
+    </div>
+  </div>
+</section>
+
+<section class="alt" id="s3" data-page-node-id="P9uQMojiDRKy7GYCnjyuvk">
+  <div class="wrap" data-page-node-id="CJQ3JRGmeVUD1JTGM4wCoV">
+    <div class="sec-head rv in" data-page-node-id="4ZcmNQlIXVCR0Eaj9CdavJ"><span class="sec-no" data-page-node-id="evx1hVjfDTLCiLZ9lxhADI">03</span><h2 data-page-node-id="0o1hHbR9JK4aqrKGTSSOVv">适合打 cli 的客户画像</h2></div>
+    <p class="sec-sub rv in" data-page-node-id="2DsaVNAur8m5tgtGedKFFd">四类客户天然和 cli 匹配，遇到就值得重点推。</p>
+    <div class="grid2 rv in" data-page-node-id="JDmX6flYBbW7rQDnWJHY7O">
+      <div class="card" data-page-node-id="Y3yrPqh0cNnQDAtG3Ri1F5">
+        <span class="ico" data-page-node-id="yCaDCO9GnXWldsEYErPTev">🧭</span><span class="no" data-page-node-id="pNDr0XSL7UCuGz8Ea9pGYn">3.1</span>
+        <h3 data-page-node-id="1kADSFhkQF8ikoMh3btdah">想用 AI 提效、不知道怎么用</h3>
+        <p data-page-node-id="4L1740XYkutTm5WIMDDxsy">有意识、没路径。cli 直接给一个可落地的入口，比讲理念更实在。</p>
+      </div>
+      <div class="card" data-page-node-id="Bms7u0kH75RSox9O4oHrA5">
+        <span class="ico" data-page-node-id="n1R35EJt0KtB5C082Ccz3d">💬</span><span class="no" data-page-node-id="WB5KsMKtCqYbQgcRJEFMWL">3.2</span>
+        <h3 data-page-node-id="lKEkOiC5mI4iyT0EdnTHgF">想用 AI 问数问知</h3>
+        <p data-page-node-id="FbQLZJ10aOGvc2uIRHTIe9">把 BI 里的数据资产接进 Agent，让"问一句拿结果"成为日常。</p>
+      </div>
+      <div class="card" data-page-node-id="mFrtHjByStpidUevKDOlR8">
+        <span class="ico" data-page-node-id="D35iNmk8rOtHcoyPvQj8UJ">🔌</span><span class="no" data-page-node-id="goklGoG8SSyKP3AI9SHgsg">3.3</span>
+        <h3 data-page-node-id="jUmmFTIbcpUPvh72g7k1qU">之前用过 Public API</h3>
+        <p data-page-node-id="qtHAlgDnHPD1mZgpzGtm3U">已经验证过"接出来用"的价值，cli 是更顺手、更省心的升级替代。</p>
+      </div>
+      <div class="card" data-page-node-id="b9khgT8CXMhLUchOwkolx3">
+        <span class="ico" data-page-node-id="sT0pln8aRfq3Hogwvq81xF">🛠️</span><span class="no" data-page-node-id="Hp1ehJuAvEHllZftUnT4jP">3.4</span>
+        <h3 data-page-node-id="QiC9wUtJdUAco8IHCH2DBU">自己手搓过 HTML</h3>
+        <p data-page-node-id="oDb5i3hyKAYM04Ek64oB2j">有自研习惯和工程直觉，对 Agent 交互接受度天然高。</p>
+      </div>
+    </div>
+  </div>
+</section>
+
+<section id="s4" data-page-node-id="NnfsWqL1vww8RU9CuBO2fo">
+  <div class="wrap" data-page-node-id="RRhIJloFA3emuxAt1tqdHo">
+    <div class="sec-head rv in" data-page-node-id="0Qzf3zimWBXuqjqy7OWs2j"><span class="sec-no" data-page-node-id="UrxTyNyBS2AigAGBoED4RW">04</span><h2 data-page-node-id="Vb9w1ZUpDHtn5OIW7P2aSA">客户分成四种类型</h2></div>
+    <p class="sec-sub rv in" data-page-node-id="kpdHobBL6DFyzf3GsgUKpc">培育过程里，我把客户按"感知度 × 使用深度"切成四档，分别对应不同的孵化动作。</p>
+    <div class="ladder rv in" data-page-node-id="a4ytTHEmESCQgnEJmbyj6k">
+      <div class="rung r1" data-page-node-id="ccPdhiMT4RQ3338PYdr9zg">
+        <span class="tag" data-page-node-id="XCOEdlFiJzFpH90qoKb4aE">4.1 最该主动孵化</span>
+        <div class="lv" data-page-node-id="pCSG9b5bwzvBrqKwElMIWR">LEVEL 1</div>
+        <h3 data-page-node-id="kMQOECnsdbosQXsRgE7Bmv">无感知</h3>
+        <p data-page-node-id="CJzezLSGwKzdNAXix5BZ5j">完全没进群、对 cli 没感知。</p>
+        <div class="arrowline" data-page-node-id="riYe3YPPcahYkF6cTGzuFc">→ 用「探意」案例展开讲</div>
+      </div>
+      <div class="rung r2" data-page-node-id="ryvbJL6VLoVsTTH8d0ESDf">
+        <span class="tag" data-page-node-id="pt7NdDdDlYRltPVSNoTVnR">4.2 手把手带</span>
+        <div class="lv" data-page-node-id="ItIHM38CuBjIilj9Hydkb6">LEVEL 2</div>
+        <h3 data-page-node-id="bmj9T3nxKyRk2SUGqOIMWH">浅使用</h3>
+        <p data-page-node-id="rxZ359jKv8yozuBA6Hc2NR">进群了，但不会用。</p>
+        <div class="arrowline" data-page-node-id="T6B0rJHrN73eEH7WvtjJ3r">→ 首次安装 / 首次使用，先"能跑起来"</div>
+      </div>
+      <div class="rung r3" data-page-node-id="WXfEZo1hN2cB3vyMeTdUNC">
+        <span class="tag" data-page-node-id="g7HsDe2oavduvsfK4rwWQy">4.3 场景引导</span>
+        <div class="lv" data-page-node-id="s16B0Bltt2TAxx6SLMAuo2">LEVEL 3</div>
+        <h3 data-page-node-id="XsJis1wT6UnLcytCENIGFe">中等使用</h3>
+        <p data-page-node-id="TGK0M6GIAZbKthpXASD1Dh">进群了，但用得不深。</p>
+        <div class="arrowline" data-page-node-id="LdQJZuIW0JNlqBCZ7LeXwF">→ 案例分享 + 更新通知，把单点扩成习惯</div>
+      </div>
+      <div class="rung r4" data-page-node-id="FduL7iHB7BLwkqaXBtTDRb">
+        <span class="tag" data-page-node-id="RzVrfb90WEskyxG73pRWZV">4.4 标杆运营</span>
+        <div class="lv" data-page-node-id="R79W6A91vtHo9hLJS7IuYb">LEVEL 4</div>
+        <h3 data-page-node-id="bvwHmLnXGQKoGNd9sRRnHU">深度使用</h3>
+        <p data-page-node-id="JrVL5gds19FwCYwXILRl3E">进群且用得很好。</p>
+        <div class="arrowline" data-page-node-id="KfklBHNcBr4NCyeQiHFy4j">→ 沉淀案例、转介绍与二次机会摸排</div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<section class="alt" id="s5" data-page-node-id="Y2FnUGFuVm25vs9K6KXtlw">
+  <div class="wrap" data-page-node-id="em0bom9v9HeFgAB2Y0cuhE">
+    <div class="sec-head rv in" data-page-node-id="7DxK36AuJWJQut39MBG5wb"><span class="sec-no" data-page-node-id="NIMdCSF8BEsE1snD8r5Rgj">05</span><h2 data-page-node-id="qD20vHaiCBhRifyRFrVfHG" style="">打单案例：探X智能​​</h2></div>
+    <p class="sec-sub rv in" data-page-node-id="lNkTpRfV0rNXZL2dPmNePM" style="">以客户 A（「探X智能」）为例，演示 4.1 档客户的完整孵化链路。​</p>
+    <div class="tl" data-page-node-id="n7kPnuK5VErR5gGLHxaVJk">
+      <div class="tl-item rv in" data-page-node-id="uoo6CnnUCLx5gXoEIl0iz3">
+        <div class="step" data-page-node-id="PsyFq5CbkruyGOgGKSsJh4">STEP 1 · 现场发现</div>
+        <h3 data-page-node-id="q1NBxRkLQsKj6F0DXfodZ7">客户对 cli 无感知，但存在明确切入点</h3>
+        <p data-page-node-id="fgqcGVVdTkl2ZLpXOT59MN">现场沟通时发现客户对 cli 完全没概念，但同时具备两类特征：<b data-page-node-id="5r5LiEAj2m08q0ksHwXi9G">画像 3.3 用过 Public API</b> ＋ <b data-page-node-id="hMOC9RCxaCP5g0IE49sJNv">画像 3.1 想提效不知怎么用</b>。价值已被他们自己验证过，只是没接上 guancli 这条更顺的路。</p>
+      </div>
+      <div class="tl-item rv in" data-page-node-id="NaQjN278PHo7Dmzwueej9x">
+        <div class="step" style="color:var(--teal);" data-page-node-id="gHMDjadSthexMdhfBRbF5G">STEP 2 · 拉专项群定向孵化</div>
+        <h3 data-page-node-id="ZCO5GWFYsY0RJKmHoEXoC0">把"会用"拆成五件小事，逐一陪跑</h3>
+        <p data-page-node-id="jOgHzxIQu7xu6l4DQjLYtr">建立专项群做定向孵化，节奏是：<b data-page-node-id="ulNt74yP5QbSo5IWupPhlp">首次安装 → 首次使用 → 案例分享 → 更新通知 → 产品答疑</b>。不一次性灌输，而是让客户在每个小节点都拿到正反馈。</p>
+      </div>
+      <div class="tl-item rv in" data-page-node-id="cejZ9U83MdXPSAkltMQlkk">
+        <div class="step" style="color:var(--green);" data-page-node-id="juJRwPDOD87jOOoNtuwzG8">STEP 3 · 提前铺垫收费</div>
+        <h3 data-page-node-id="5s7heOPfGNKcUl3RZGQMRT">在价值被感知后，再谈商业化</h3>
+        <p data-page-node-id="RygIEqChRwa2jG7VIsVEf5">趁客户已经用顺手、离不开之前，提前铺垫"后期会进行收费"，把预期管理做在前面，避免后面临门一脚时心理落差过大。</p>
+        
+      </div>
+    </div>
+  </div>
+</section>
+
+<section id="s6" data-page-node-id="N95GDNTTsYqRkvfEXS1Du7">
+  <div class="wrap" data-page-node-id="qwart3NrWuu06rPVclocqf">
+    <div class="sec-head rv in" data-page-node-id="RwcYYaW9KTSnl6sekDFnRS"><span class="sec-no" data-page-node-id="eecvHfEuiw9Kz9bTaELJwD">06</span><h2 data-page-node-id="wS3wCAROx179D2kyfeNhXE">过程中可能遇到的问题</h2></div>
+    <p class="sec-sub rv in" data-page-node-id="hGd694Kh3RnxtwdCifFfzF">真实打单里绕不开的几类阻力，以及我目前的解法。</p>
+
+    <div class="qa rv in" data-page-node-id="VRtc74kOZ1hsLOJWummZhD">
+      <div class="qa-q" data-page-node-id="0NN3KyeqGOmSvxYsrRFcbF"><span class="ico" data-page-node-id="H9qJpk8Ogi3pd9Xfoyi2SF">⚠️</span>买断客户怎么推？</div>
+      <ol data-page-node-id="iTnUXtY5N3BFNMDfVIvhxf">
+        <li data-page-node-id="753mZgjGnyVmHS8wSkPobc"><span class="idx" data-page-node-id="23KmXIaMzvqjAPGA0ZuBkD">6.1</span><b data-page-node-id="Tv3kAGBMOVij88GP475MYD">大版本升级优势：</b>用新版能力点作为买断客户增购/升级的理由。</li>
+        <li data-page-node-id="swJF0LK1me6GEF5MCtIthO"><span class="idx" data-page-node-id="H2EmS2BeCLyuqGjFyBYgWU">6.2</span><b data-page-node-id="yMoRqJ787WbnJA6E3zQyQf">cli 使用打信息差：</b>客户不知道 cli 是否有版本限制，打的就是一个信息差。（慎用）</li>
+        <li data-page-node-id="4ztQnLLFhOfXanDCGSGBNU"><span class="idx" data-page-node-id="wIyXQ8RncRMV6xU6IuZfUx">6.3</span><b data-page-node-id="hwFEb7DJ7wAJaZx6Q6JPKv">告知 cli 存在缺陷：</b>关于高级查询功能等。</li>
+      </ol>
+    </div>
+
+    <div class="qa rv in" data-page-node-id="qUR6wMZrsx7qN6H6zoB6Fo">
+      <div class="qa-q" data-page-node-id="EIuZ3FPc1rsh98X0M1KcJf"><span class="ico" data-page-node-id="AOoBAt9d6gCd3KIvIt1dly">⚠️</span>竞品都没收费，为什么你们要收费？</div>
+      <div class="row-2col" data-page-node-id="0bDp8ZQ5dP0ykRZvrUHe67">
+        <ol data-page-node-id="1mGX2UEtgpdsrOgXabamzA">
+          <li data-page-node-id="9xZyNrNr0QJiOB7VTpm3od"><span class="idx" data-page-node-id="og75ASS0VlUmbxMXXDrgFA">①</span><b data-page-node-id="9b2nwDPfGv5sgUftRyB1wB">定位不一样：</b>竞品目前的 cli 更多只是一个 API 接口封装（即取数），而我们提供的是<span class="hl-blue" data-page-node-id="uWGVOonpTjPLxDoWO8srmj">一整套解决方案</span>——现场直接给客户看一张产品能力图（右侧）：工具套件、资产查询、数据接入与管理、看板生成、数据加工、表单与任务、使用管控，七大模块一目了然。</li>
+          <li data-page-node-id="65bS62TVs03OJP0VfkZTCe"><span class="idx" data-page-node-id="pEXuf2bSZQPxfdHIvs2EJ7">②</span><b data-page-node-id="BVFSQm26wNt7Ae3lE3KhmN">顺势植入行业地位：</b>在对比中适当穿插着说——<span class="hl-green" data-page-node-id="2AaJSPPLkRkgrLKxPsmJj6">观远的 cli 是走在行业前列的</span>。不硬吹，让产品能力图自己说话。</li>
+          <li data-page-node-id="AY5VxEbDqNajrKf2ghMksy"><span class="idx" data-page-node-id="0RYUyUKooLYdRROCKFSC4m">③</span><b data-page-node-id="519eiFLsjGCNGDIYVGo4Es">让客户自己去调研：</b>市面上主流的 CLI 产品都是<b data-page-node-id="9FtOjHDxX6EYogQgvZIymz">超出额度进行收费</b>的——以飞书、钉钉为例，还有企查查、天眼查等等，都很常见、很好查证。让客户自己得出"收费是行业惯例"的结论，比你说服一百遍都管用。</li>
+        </ol>
+        <figure class="fig" data-page-node-id="Ku7aaD3ewK2oJKGJHJlyMA">
+          <img src="assets/capability.jpg" alt="GuanCLI 产品能力总览" loading="lazy" data-zoom="" data-page-node-id="sSrzPPH4WCVIPA1DoF9YUT">
+          <figcaption data-page-node-id="yvsDfQPaUET6zu5djITgXH">▲ 现场展示：GuanCLI 产品能力总览（点击可放大）</figcaption>
+        </figure>
+      </div>
+    </div>
+
+    <div class="qa rv in" data-page-node-id="QHb2aOqKSEJiUGe0bOKCgg">
+      <div class="qa-q" data-page-node-id="PwNyLN0MYi8LkaanrwAYsd"><span class="ico" data-page-node-id="mB1F1kIkNFdwflThOCLOne">⚠️</span>报价策略应该怎么设计？</div>
+      <ol data-page-node-id="02aCki8bkBqdjfE8aR0pMb">
+        <li data-page-node-id="HpD9fAHuDCKKPx9aHtIlwL"><span class="idx" data-page-node-id="16Sw5ymOubCInqnHKi7mmJ">→</span><b data-page-node-id="ScSmL3H7xE80LGofPE2Mex">有对比才有选择：</b>给出阶梯 / 对照方案，让客户在"选什么"而不是"买不买"上做决策。</li>
+        <li data-page-node-id="4Ifa16a7OYIHLWYWGVsckj"><span class="idx" data-page-node-id="P14lzesqeYAJA5Zg9zCMIp">→</span><b data-page-node-id="O5dOPRmKBgHKT2MypYMTCw">产品更新承诺：</b>把路线图和迭代节奏讲明白，让报价买到的是"持续变强的能力"。</li>
+        <li data-page-node-id="t43RvZ22F3mYGAr3Y85NIf"><span class="idx" data-page-node-id="v7IVhjgczStr8xEWNl4iPk">→</span><b data-page-node-id="B6h4iIC9CfnA2bV1HGQlxz">强调售后指导：</b>把"买产品 = 买陪跑"说透，这是竞品免费方案难补的缺口。</li>
+      </ol>
+    </div>
+  </div>
+</section>
+
+<section class="alt" id="s7" data-page-node-id="3YzERpH89pZbqi3FWqXrzw">
+  <div class="wrap" data-page-node-id="ecKJD69bLAN0ExFSsaRBd1">
+    <div class="sec-head rv in" data-page-node-id="nrhlx39gi1KJwAyDbV2yK5"><span class="sec-no" data-page-node-id="thtP2KXFdrnfDQx72l0JtK">07</span><h2 data-page-node-id="mwLE5WguAAThL9qvOZRRmD">其他值得补充的</h2></div>
+    <p class="sec-sub rv in" data-page-node-id="7phfrOY6HrGc27t6FCTQxC">站在方法论之外，几点一线体感。</p>
+    <div class="grid4 rv in" data-page-node-id="W3fDhVtKLY86FjgDfb86NN">
+      <div class="card sup" data-page-node-id="CWp2IfamwmgevTvKQHAYC5">
+        <span class="ico" data-page-node-id="cGKgQjNexamiPY0XpKHyl0">🔑</span>
+        <h3 data-page-node-id="zdi7jZcrVkNq0QYmMyEyWH">cli 是入口，不是终点</h3>
+        <p data-page-node-id="4QDBaJ8ewWHEucHEdgZ6QV">单点破局后，再回过头摸排洞察 Agent / ChatBI / SuperApp / DecideX 的二次机会——cli 拿到的是信任和入口位。</p>
+      </div>
+      <div class="card sup" data-page-node-id="E7Kk1HL01fvrlrOiNpPL97">
+        <span class="ico" data-page-node-id="lt1pyTRPkbHurUniqCM5Du">🔁</span>
+        <h3 data-page-node-id="mczDm37cFvgtci78qk5hV7">孵化是持续动作，不是一次性</h3>
+        <p data-page-node-id="buHlhIBYJDO3vtqmBAKKic">安装、使用、案例、更新、答疑，这五件事要循环做。客户的 Agent 习惯是养出来的，不是讲出来的。</p>
+      </div>
+      <div class="card sup" data-page-node-id="0GHtCkZch0qsgB4z0fY4wi">
+        <span class="ico" data-page-node-id="fx0uoDw1gEpCJ8qXpEb59u">🧱</span>
+        <h3 data-page-node-id="xl26hVXCxEvCrSfBPrnuDI">坦诚比完美更有转化力</h3>
+        <p data-page-node-id="0PUqH0A9YI723CHHCimXVn" style="white-space: pre-wrap;">主动讲清 cli 的能力边界和使用方法，建立专业信任，也为后续收费铺垫了合理预期。​</p>
+      </div>
+      <div class="card sup" data-page-node-id="hRnnxBIFjtsyUnSy5vc3IA">
+        <span class="ico" data-page-node-id="G9HKuUbrmYHGohzkUYcOo0">📈</span>
+        <h3 data-page-node-id="ougWXfruRyUJs9ngJ78vct">先把渗透率做厚，再谈规模</h3>
+        <p data-page-node-id="4Bywcizc5efuZ1oARK28mR">当前 50%+ 仍有上升空间，下一步是把"四类客户"的孵化 SOP 标准化，让复制不依赖个人手感。</p>
+      </div>
+    </div>
+    <div class="motto rv in" style="margin-top:28px;" data-page-node-id="kcFazaUUAKXQ7hLixiRYrG">
+      <div class="t" data-page-node-id="hhQdh6kZGXu71BqR1sr1PP">一句话方法论</div>
+      <p data-page-node-id="EpktceVMtZlCnp43AOiqEx">选对入口（<em data-page-node-id="Sqdh8FfXv54NVPTNyB9WvR">cli</em>）→ 找准画像（四类人）→ 分层培育（四档客户）→ 提前铺垫（价值后被收费）→ 单点破局后再摸排全产品机会。</p>
+      <div class="tail" data-page-node-id="bAVukIEIvhCJWIsJoiE6D6">它不性感，但一线跑得通。</div>
+    </div>
+  </div>
+</section>
+
+<footer data-page-node-id="EHT8WxNNf1yFrjUzdIUHYR">
+  guancli 打单方法论 · 经验分享　|　观远数据 客户成功(CSM)　|　数据截至分享当日，具体数字以实际战报为准
+</footer>
+
+<div class="lb" id="lightbox" data-page-node-id="5GrhJwfJsOqQDkla2pICoj"><img src="" alt="预览大图" data-page-node-id="nVnQvdC2DLF6VWXanTc8Wd"></div>
+
+<script data-page-node-id="F5KD18PBWUNZzqentMvQz2">
+  // scroll progress
+  const bar=document.getElementById('progress');
+  addEventListener('scroll',()=>{
+    const h=document.documentElement;
+    bar.style.width=(h.scrollTop/(h.scrollHeight-h.clientHeight)*100)+'%';
+  },{passive:true});
+
+  // reveal on scroll
+  const io=new IntersectionObserver(es=>es.forEach(e=>{
+    if(e.isIntersecting){e.target.classList.add('in');io.unobserve(e.target);}
+  }),{threshold:.08});
+  document.querySelectorAll('.rv').forEach(el=>io.observe(el));
+
+  // scrollspy
+  const links=[...document.querySelectorAll('.nav-links a')];
+  const spy=new IntersectionObserver(es=>es.forEach(e=>{
+    if(e.isIntersecting){
+      links.forEach(a=>a.classList.toggle('on',a.getAttribute('href')==='#'+e.target.id));
+    }
+  }),{rootMargin:'-40% 0px -55% 0px'});
+  document.querySelectorAll('section[id]').forEach(s=>spy.observe(s));
+
+  // lightbox
+  const lb=document.getElementById('lightbox'),lbImg=lb.querySelector('img');
+  document.querySelectorAll('[data-zoom]').forEach(img=>{
+    img.addEventListener('click',()=>{lbImg.src=img.src;lb.classList.add('show');});
+  });
+  lb.addEventListener('click',()=>lb.classList.remove('show'));
+  addEventListener('keydown',e=>{if(e.key==='Escape')lb.classList.remove('show');});
+</script>
+
+
+</body></html>
